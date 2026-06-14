@@ -80,17 +80,19 @@
     <!-- Actions column -->
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let obj" class="actions-cell">
-        <button mat-icon-button (click)="openEditDialog(obj)" matTooltip="Edit object"
-          [id]="'btn-edit-object-' + obj.id">
-          <mat-icon>edit</mat-icon>
-        </button>
-        @if (!obj.isArchived) {
-        <button mat-icon-button (click)="openArchiveDialog(obj)" matTooltip="Archive object"
-          [id]="'btn-archive-object-' + obj.id">
-          <mat-icon>archive</mat-icon>
-        </button>
-        }
+      <td mat-cell *matCellDef="let obj">
+        <div class="actions-cell">
+          <button mat-icon-button (click)="openEditDialog(obj)" matTooltip="Edit object"
+            [id]="'btn-edit-object-' + obj.id">
+            <mat-icon>edit</mat-icon>
+          </button>
+          @if (!obj.isArchived) {
+          <button mat-icon-button (click)="openArchiveDialog(obj)" matTooltip="Archive object"
+            [id]="'btn-archive-object-' + obj.id">
+            <mat-icon>archive</mat-icon>
+          </button>
+          }
+        </div>
       </td>
     </ng-container>
 

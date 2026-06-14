@@ -1,0 +1,15 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.users-content {
+  padding: 16px;
+}
+
+.users-table {
+  width: 100%;
+}
+
+.error {
+  color: var(--mat-sys-error, #b3261e);
+}

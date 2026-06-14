@@ -7,9 +7,9 @@ const ORG_SLUG = "acme";
 const ORG_NAME = "Acme Corporation";
 const SEED_PASSWORD = "Password123!";
 
-const SEED_USERS: { username: string; displayName: string; status: "active" | "disabled" }[] = [
-  { username: "jane", displayName: "Jane Doe", status: "active" },
-  { username: "bob", displayName: "Bob Smith", status: "disabled" },
+const SEED_USERS: { username: string; displayName: string; status: "active" | "disabled"; role: "admin" | "member" }[] = [
+  { username: "jane", displayName: "Jane Doe", status: "active", role: "admin" },
+  { username: "bob", displayName: "Bob Smith", status: "disabled", role: "member" },
 ];
 
 async function main() {
@@ -31,7 +31,12 @@ async function main() {
 
 async function createSeedUser(
   organizationId: string,
-  { username, displayName, status }: { username: string; displayName: string; status: "active" | "disabled" },
+  {
+    username,
+    displayName,
+    status,
+    role,
+  }: { username: string; displayName: string; status: "active" | "disabled"; role: "admin" | "member" },
 ) {
   const compositeUsername = `${ORG_SLUG}:${username}`.toLowerCase();
   // Better Auth's email validator rejects ":", so use "+" for the placeholder email's local part.
@@ -46,6 +51,7 @@ async function createSeedUser(
         username: compositeUsername,
         displayUsername: username,
         organizationId,
+        role,
       },
     });
     console.log(`Created user "${username}" in organization "${ORG_SLUG}" (password: ${SEED_PASSWORD})`);
@@ -62,6 +68,8 @@ async function createSeedUser(
     await db.update(users).set({ status: "disabled" }).where(eq(users.username, compositeUsername));
     console.log(`Set user "${username}" status to "disabled"`);
   }
+
+  await db.update(users).set({ role }).where(eq(users.username, compositeUsername));
 }
 
 main().catch((err) => {

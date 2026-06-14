@@ -8,6 +8,7 @@ export interface AuthUserDto {
   username: string;
   displayName: string;
   organizationSlug: string | null;
+  role: string;
 }
 
 export type LoginResult =
@@ -16,7 +17,7 @@ export type LoginResult =
 
 export type SessionResult = { ok: true; user: AuthUserDto } | { ok: false };
 
-function compositeUsername(organizationSlug: string, username: string): string {
+export function compositeUsername(organizationSlug: string, username: string): string {
   return `${organizationSlug}:${username}`.toLowerCase();
 }
 
@@ -56,7 +57,7 @@ export async function loginWithCredentials(
 
   const body = (await signInResult.json()) as {
     token: string;
-    user: { id: string; name: string; displayUsername: string; status: string; organizationId: string };
+    user: { id: string; name: string; displayUsername: string; status: string; organizationId: string; role: string };
   };
 
   if (body.user.status === "disabled") {
@@ -76,6 +77,7 @@ export async function loginWithCredentials(
       username: body.user.displayUsername,
       displayName: body.user.name,
       organizationSlug: organization.slug,
+      role: body.user.role,
     },
     setCookieHeaders: signInResult.headers.getSetCookie(),
   };
@@ -88,7 +90,7 @@ export async function getCurrentUser(headers: Headers): Promise<SessionResult> {
     return { ok: false };
   }
 
-  const user = session.user as typeof session.user & { organizationId: string; displayUsername: string };
+  const user = session.user as typeof session.user & { organizationId: string; displayUsername: string; role: string };
 
   const [organization] = await db
     .select()
@@ -103,6 +105,7 @@ export async function getCurrentUser(headers: Headers): Promise<SessionResult> {
       username: user.displayUsername,
       displayName: user.name,
       organizationSlug: organization?.slug ?? null,
+      role: user.role,
     },
   };
 }

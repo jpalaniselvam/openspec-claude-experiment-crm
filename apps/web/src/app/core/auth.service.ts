@@ -8,6 +8,7 @@ export interface AuthUser {
   username: string;
   displayName: string;
   organizationSlug: string;
+  role: 'admin' | 'member';
 }
 
 export interface LoginCredentials {
@@ -30,6 +31,7 @@ export class AuthService {
   readonly user = this.userSignal.asReadonly();
   readonly initialized = this.initializedSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.userSignal() !== null);
+  readonly isAdmin = computed(() => this.userSignal()?.role === 'admin');
 
   constructor(private readonly http: HttpClient) {}
 

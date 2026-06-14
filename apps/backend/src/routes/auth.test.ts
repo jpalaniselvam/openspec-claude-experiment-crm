@@ -12,7 +12,7 @@ const { createApp } = await import("../app.js");
 
 const app = createApp();
 
-const USER = { id: "user-1", username: "jane", displayName: "Jane Doe", organizationSlug: "acme" };
+const USER = { id: "user-1", username: "jane", displayName: "Jane Doe", organizationSlug: "acme", role: "admin" };
 
 beforeEach(() => {
   vi.clearAllMocks();

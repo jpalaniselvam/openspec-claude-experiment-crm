@@ -8,6 +8,20 @@
       "when": 1781446647564,
       "tag": "0000_clever_boomerang",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781453127484,
+      "tag": "0001_zippy_dakota_north",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781454178862,
+      "tag": "0002_uneven_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }

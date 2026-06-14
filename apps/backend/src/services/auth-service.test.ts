@@ -78,14 +78,21 @@ describe("loginWithCredentials", () => {
   it("returns the user and session cookie for valid credentials", async () => {
     limitMock.mockResolvedValueOnce([ORGANIZATION]);
     signInUsernameMock.mockResolvedValueOnce(
-      signInResponse({ id: "user-1", name: "Jane Doe", displayUsername: "jane", status: "active", organizationId: "org-1" }),
+      signInResponse({
+        id: "user-1",
+        name: "Jane Doe",
+        displayUsername: "jane",
+        status: "active",
+        organizationId: "org-1",
+        role: "member",
+      }),
     );
 
     const result = await loginWithCredentials("acme", "jane", "Password123!");
 
     expect(result).toEqual({
       ok: true,
-      user: { id: "user-1", username: "jane", displayName: "Jane Doe", organizationSlug: "acme" },
+      user: { id: "user-1", username: "jane", displayName: "Jane Doe", organizationSlug: "acme", role: "member" },
       setCookieHeaders: ["better-auth.session_token=abc; Path=/; HttpOnly"],
     });
     expect(signInUsernameMock).toHaveBeenCalledWith({
@@ -137,7 +144,7 @@ describe("loginWithCredentials", () => {
     limitMock.mockResolvedValueOnce([ORGANIZATION]);
     signInUsernameMock.mockResolvedValueOnce(
       signInResponse(
-        { id: "user-1", name: "Jane Doe", displayUsername: "jane", status: "disabled", organizationId: "org-1" },
+        { id: "user-1", name: "Jane Doe", displayUsername: "jane", status: "disabled", organizationId: "org-1", role: "member" },
         "disabled-session-token",
       ),
     );
@@ -165,7 +172,7 @@ describe("getCurrentUser", () => {
 
   it("returns the current user and organization slug for a valid session", async () => {
     getSessionMock.mockResolvedValueOnce({
-      user: { id: "user-1", name: "Jane Doe", displayUsername: "jane", organizationId: "org-1" },
+      user: { id: "user-1", name: "Jane Doe", displayUsername: "jane", organizationId: "org-1", role: "admin" },
     });
     limitMock.mockResolvedValueOnce([ORGANIZATION]);
 
@@ -173,7 +180,7 @@ describe("getCurrentUser", () => {
 
     expect(result).toEqual({
       ok: true,
-      user: { id: "user-1", username: "jane", displayName: "Jane Doe", organizationSlug: "acme" },
+      user: { id: "user-1", username: "jane", displayName: "Jane Doe", organizationSlug: "acme", role: "admin" },
     });
   });
 });

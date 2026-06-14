@@ -4,6 +4,9 @@
   @if (user()) {
     <span class="user-info">{{ user()!.displayName }} ({{ user()!.organizationSlug }})</span>
   }
+  @if (isAdmin()) {
+    <a mat-button routerLink="/admin/users">Users</a>
+  }
   <button mat-button (click)="logout()">Log out</button>
 </mat-toolbar>
 

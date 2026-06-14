@@ -6,6 +6,10 @@ import { env } from "./config/env.js";
 import { logger } from "./lib/logger.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import { authRouter } from "./routes/auth.js";
+import { usersRouter } from "./routes/users.js";
+import { objectsRouter } from "./routes/objects.js";
+import { objectFieldsRouter } from "./routes/object-fields.js";
+import { recordsRouter } from "./routes/records.js";
 
 export function createApp() {
   const app = express();
@@ -21,6 +25,10 @@ export function createApp() {
   app.use(pinoHttp({ logger }));
 
   app.use("/api/auth", authRouter);
+  app.use("/api/users", usersRouter);
+  app.use("/api/objects/:objectId/fields", objectFieldsRouter);
+  app.use("/api/objects", objectsRouter);
+  app.use("/api/records", recordsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

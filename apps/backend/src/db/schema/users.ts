@@ -2,6 +2,7 @@ import { boolean, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "dr
 import { organizations } from "./organizations.js";
 
 export const userStatusEnum = pgEnum("user_status", ["active", "disabled"]);
+export const userRoleEnum = pgEnum("user_role", ["admin", "member"]);
 
 /**
  * Doubles as Better Auth's `user` model. `username` holds the globally-unique
@@ -23,6 +24,7 @@ export const users = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     status: userStatusEnum("status").notNull().default("active"),
+    role: userRoleEnum("role").notNull().default("member"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

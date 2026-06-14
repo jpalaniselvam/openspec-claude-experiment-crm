@@ -4,7 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { AuthService, AuthUser } from './auth.service';
 
-const USER: AuthUser = { id: '1', username: 'jane', displayName: 'Jane Doe', organizationSlug: 'acme' };
+const USER: AuthUser = { id: '1', username: 'jane', displayName: 'Jane Doe', organizationSlug: 'acme', role: 'admin' };
 
 describe('AuthService', () => {
   let service: AuthService;

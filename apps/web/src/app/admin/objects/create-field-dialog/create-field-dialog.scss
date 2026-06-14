@@ -1,0 +1,56 @@
+.field-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 480px;
+  padding-top: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.api-key-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container);
+  margin-bottom: 8px;
+}
+
+.api-key-label {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.api-key-value {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mat-sys-primary);
+}
+
+.flags-section {
+  margin-top: 8px;
+}
+
+.flags-label {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.flags-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.error-msg {
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}

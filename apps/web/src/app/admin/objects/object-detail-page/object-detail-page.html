@@ -1,0 +1,130 @@
+<div class="page-container">
+  @if (errorMessage()) {
+    <p class="error-msg">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="loading-wrapper">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (object()) {
+    <!-- Object Details Header Card -->
+    <div class="object-header-card">
+      <div class="card-left">
+        <div class="object-icon" [style.background-color]="object()!.color || '#6750A4'">
+          <mat-icon>{{ object()!.icon || 'category' }}</mat-icon>
+        </div>
+        <div class="object-info">
+          <h1 class="object-name">{{ object()!.name }}</h1>
+          <div class="meta-row">
+            <span class="meta-item">API Name: <code class="api-name-badge">{{ object()!.apiName }}</code></span>
+            <span class="meta-item">Plural: <strong>{{ object()!.pluralName }}</strong></span>
+            @if (object()!.isArchived) {
+              <span class="status-badge archived">Archived</span>
+            }
+          </div>
+          @if (object()!.description) {
+            <p class="object-description">{{ object()!.description }}</p>
+          }
+        </div>
+      </div>
+      <div class="card-actions">
+        <button mat-stroked-button (click)="openEditObjectDialog()" id="btn-edit-object-metadata">
+          <mat-icon>edit</mat-icon>
+          Edit Details
+        </button>
+      </div>
+    </div>
+
+    <!-- Fields Section -->
+    <div class="fields-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2>Fields</h2>
+          <span class="field-count">{{ fields().length }} fields</span>
+        </div>
+        <button mat-flat-button color="primary" (click)="openCreateFieldDialog()" [disabled]="object()!.isArchived" id="btn-add-field">
+          <mat-icon>add</mat-icon>
+          Add Field
+        </button>
+      </div>
+
+      @if (fields().length === 0) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">list_alt</mat-icon>
+          <h3>No fields defined</h3>
+          <p>Add fields to define the data structure for this object.</p>
+          <button mat-flat-button color="primary" (click)="openCreateFieldDialog()" [disabled]="object()!.isArchived" id="btn-add-field-empty">
+            Add First Field
+          </button>
+        </div>
+      } @else {
+        <table mat-table [dataSource]="fields()" class="fields-table">
+          <!-- Name column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let field">
+              <span class="field-name">{{ field.name }}</span>
+            </td>
+          </ng-container>
+
+          <!-- API Key column -->
+          <ng-container matColumnDef="apiKey">
+            <th mat-header-cell *matHeaderCellDef>API Key</th>
+            <td mat-cell *matCellDef="let field">
+              <code class="api-key-badge">{{ field.apiKey }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Data Type column -->
+          <ng-container matColumnDef="dataType">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let field">
+              <span class="type-badge">{{ field.dataType }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Flags column -->
+          <ng-container matColumnDef="flags">
+            <th mat-header-cell *matHeaderCellDef>Properties</th>
+            <td mat-cell *matCellDef="let field" class="flags-cell">
+              <mat-chip-set>
+                @if (field.isRequired) { <mat-chip class="flag-chip req-chip">Required</mat-chip> }
+                @if (field.isUnique) { <mat-chip class="flag-chip">Unique</mat-chip> }
+                @if (field.isSearchable) { <mat-chip class="flag-chip">Searchable</mat-chip> }
+                @if (field.isReadOnly) { <mat-chip class="flag-chip readonly-chip">Read-only</mat-chip> }
+              </mat-chip-set>
+            </td>
+          </ng-container>
+
+          <!-- Actions column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let field" class="actions-cell">
+              <button
+                mat-icon-button
+                (click)="openEditFieldDialog(field)"
+                matTooltip="Edit field"
+                [id]="'btn-edit-field-' + field.id"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                (click)="openDeleteFieldDialog(field)"
+                matTooltip="Delete field"
+                color="warn"
+                [id]="'btn-delete-field-' + field.id"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </table>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>Edit Field</h2>
+
+<mat-dialog-content>
+  @if (errorMessage()) {
+    <p class="error-msg">{{ errorMessage() }}</p>
+  }
+
+  <form [formGroup]="form" class="field-form">
+    <div class="locked-properties">
+      <div class="locked-field">
+        <span class="locked-label">API Key (permanent)</span>
+        <div class="locked-value">
+          <mat-icon class="lock-icon" matTooltip="API key cannot be changed after creation">lock</mat-icon>
+          <code>{{ data.field.apiKey }}</code>
+        </div>
+      </div>
+
+      <div class="locked-field">
+        <span class="locked-label">Data Type (permanent)</span>
+        <div class="locked-value">
+          <mat-icon class="lock-icon" matTooltip="Field type cannot be changed after creation to protect existing record data">lock</mat-icon>
+          <span class="type-badge">{{ data.field.dataType }}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Field Name</mat-label>
+      <input matInput formControlName="name" id="input-edit-field-name" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="flags-section">
+      <p class="flags-label">Field Flags</p>
+      <div class="flags-grid">
+        <mat-checkbox formControlName="isRequired" id="check-edit-required">Required</mat-checkbox>
+        <mat-checkbox formControlName="isUnique" id="check-edit-unique">Unique</mat-checkbox>
+        <mat-checkbox formControlName="isSearchable" id="check-edit-searchable">Searchable</mat-checkbox>
+        <mat-checkbox formControlName="isReadOnly" id="check-edit-readonly">Read Only</mat-checkbox>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="saving()" id="btn-cancel-edit-field">Cancel</button>
+  <button
+    mat-flat-button
+    (click)="submit()"
+    [disabled]="form.invalid || saving()"
+    id="btn-save-field"
+  >
+    @if (saving()) {
+      <mat-spinner diameter="18" />
+    } @else {
+      Save
+    }
+  </button>
+</mat-dialog-actions>

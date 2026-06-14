@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>Create Object</h2>
+
+<mat-dialog-content>
+  @if (errorMessage()) {
+    <p class="error-msg">{{ errorMessage() }}</p>
+  }
+
+  <form [formGroup]="form" class="object-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="e.g. Doctor Visit" id="input-object-name" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="api-name-preview">
+      <span class="api-name-label">API Name (auto-generated, permanent):</span>
+      <code class="api-name-value">{{ derivedApiName() || '—' }}</code>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Plural Name</mat-label>
+      <input matInput formControlName="pluralName" placeholder="e.g. Doctor Visits" id="input-object-plural-name" />
+      @if (form.get('pluralName')?.hasError('required')) {
+        <mat-error>Plural name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="2" placeholder="Optional description" id="input-object-description"></textarea>
+    </mat-form-field>
+
+    <div class="icon-row">
+      <mat-form-field appearance="outline" class="flex-grow">
+        <mat-label>Icon</mat-label>
+        <mat-select formControlName="icon" id="select-object-icon">
+          <mat-select-trigger>
+            <div class="icon-trigger">
+              <mat-icon>{{ form.get('icon')?.value }}</mat-icon>
+              <span>{{ form.get('icon')?.value }}</span>
+            </div>
+          </mat-select-trigger>
+          @for (icon of commonIcons; track icon) {
+            <mat-option [value]="icon">
+              <div class="icon-option">
+                <mat-icon>{{ icon }}</mat-icon>
+                <span>{{ icon }}</span>
+              </div>
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <div class="icon-preview" [style.background-color]="form.get('color')?.value">
+        @if (iconPreview()) {
+          <mat-icon>{{ iconPreview() }}</mat-icon>
+        } @else {
+          <mat-icon>category</mat-icon>
+        }
+      </div>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Color</mat-label>
+      <input matInput formControlName="color" type="color" id="input-object-color" />
+      <mat-hint>Pick a color for this object's icon background</mat-hint>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="saving()" id="btn-cancel-object">Cancel</button>
+  <button
+    mat-flat-button
+    (click)="submit()"
+    [disabled]="form.invalid || saving()"
+    id="btn-create-object"
+  >
+    @if (saving()) {
+      <mat-spinner diameter="18" />
+    } @else {
+      Create
+    }
+  </button>
+</mat-dialog-actions>

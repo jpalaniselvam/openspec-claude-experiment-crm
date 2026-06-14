@@ -1,12 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthService } from '../../../core/auth.service';
 import { CreateUserDialog } from '../create-user-dialog/create-user-dialog';
 import { OrgUser, UsersService } from '../users.service';
@@ -14,14 +13,13 @@ import { OrgUser, UsersService } from '../users.service';
 @Component({
   selector: 'app-users-page',
   imports: [
-    RouterLink,
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatIconModule,
     MatProgressSpinnerModule,
     MatSelectModule,
     MatTableModule,
-    MatToolbarModule,
   ],
   templateUrl: './users-page.html',
   styleUrl: './users-page.scss',

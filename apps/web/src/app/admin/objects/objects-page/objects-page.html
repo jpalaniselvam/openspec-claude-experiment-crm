@@ -1,0 +1,118 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1 class="page-title">Objects</h1>
+    <p class="page-subtitle">Define the business entities for your tenant</p>
+  </div>
+  <div class="header-actions">
+    <mat-slide-toggle
+      [checked]="showArchived()"
+      (change)="showArchived.set($event.checked)"
+      id="toggle-show-archived"
+    >
+      Show Archived
+    </mat-slide-toggle>
+    <button mat-flat-button (click)="openCreateDialog()" id="btn-create-object">
+      <mat-icon>add</mat-icon>
+      Create Object
+    </button>
+  </div>
+</div>
+
+<div class="page-content">
+  @if (errorMessage()) {
+    <p class="error-msg">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="loading-wrapper">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (visibleObjects.length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">category</mat-icon>
+      <h3>No objects yet</h3>
+      <p>Create your first object definition to start modelling your business domain.</p>
+      <button mat-flat-button (click)="openCreateDialog()" id="btn-create-object-empty">
+        <mat-icon>add</mat-icon>
+        Create Object
+      </button>
+    </div>
+  } @else {
+    <table mat-table [dataSource]="visibleObjects" class="objects-table">
+      <!-- Icon column -->
+      <ng-container matColumnDef="icon">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let obj">
+          <div class="object-icon" [style.background-color]="obj.color || '#6750A4'">
+            <mat-icon>{{ obj.icon || 'category' }}</mat-icon>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Name column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let obj">
+          <div class="object-name-cell">
+            <button mat-button class="name-link" (click)="navigateToDetail(obj)" [id]="'btn-object-' + obj.id">
+              {{ obj.name }}
+            </button>
+            <span class="plural-name">{{ obj.pluralName }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- API Name column -->
+      <ng-container matColumnDef="apiName">
+        <th mat-header-cell *matHeaderCellDef>API Name</th>
+        <td mat-cell *matCellDef="let obj">
+          <code class="api-name-badge">{{ obj.apiName }}</code>
+        </td>
+      </ng-container>
+
+      <!-- Status column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let obj">
+          @if (obj.isArchived) {
+            <span class="status-badge archived">Archived</span>
+          } @else {
+            <span class="status-badge active">Active</span>
+          }
+        </td>
+      </ng-container>
+
+      <!-- Actions column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let obj" class="actions-cell">
+          <button
+            mat-icon-button
+            (click)="openEditDialog(obj)"
+            matTooltip="Edit object"
+            [id]="'btn-edit-object-' + obj.id"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          @if (!obj.isArchived) {
+            <button
+              mat-icon-button
+              (click)="openArchiveDialog(obj)"
+              matTooltip="Archive object"
+              [id]="'btn-archive-object-' + obj.id"
+            >
+              <mat-icon>archive</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: columns"
+        [class.archived-row]="row.isArchived"
+      ></tr>
+    </table>
+  }
+</div>

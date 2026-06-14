@@ -1,0 +1,88 @@
+.object-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 460px;
+  padding-top: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.locked-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container);
+  margin-bottom: 8px;
+}
+
+.locked-label {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.locked-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  code {
+    font-family: monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.lock-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--mat-sys-outline);
+}
+
+.icon-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+.icon-preview {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4px;
+  background: var(--mat-sys-primary-container);
+
+  mat-icon {
+    color: white;
+  }
+}
+
+.icon-option, .icon-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  mat-icon {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.error-msg {
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}

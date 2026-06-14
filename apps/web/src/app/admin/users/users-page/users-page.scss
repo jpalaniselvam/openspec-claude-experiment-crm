@@ -1,9 +1,19 @@
-.spacer {
-  flex: 1 1 auto;
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .users-content {
-  padding: 16px;
+  padding: 24px;
 }
 
 .users-table {
@@ -12,4 +22,5 @@
 
 .error {
   color: var(--mat-sys-error, #b3261e);
+  margin-bottom: 16px;
 }

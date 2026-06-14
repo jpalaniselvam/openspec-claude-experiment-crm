@@ -1,0 +1,151 @@
+<form [formGroup]="formGroup" class="dynamic-form">
+  @for (field of fields; track field.id) {
+    <div class="field-container">
+      @switch (field.dataType) {
+        @case ('text') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <input matInput [formControlName]="field.apiKey" [placeholder]="'Enter ' + field.name" />
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('long_text') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <textarea matInput [formControlName]="field.apiKey" rows="3" [placeholder]="'Enter ' + field.name"></textarea>
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('number') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <input matInput type="number" [formControlName]="field.apiKey" [placeholder]="'Enter ' + field.name" />
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('decimal') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <input matInput type="number" step="0.01" [formControlName]="field.apiKey" [placeholder]="'Enter ' + field.name" />
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('boolean') {
+          <div class="toggle-container">
+            <mat-slide-toggle [formControlName]="field.apiKey">
+              {{ field.name }}
+            </mat-slide-toggle>
+          </div>
+        }
+
+        @case ('date') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <input matInput [matDatepicker]="picker" [formControlName]="field.apiKey" />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('datetime') {
+          <div class="datetime-container">
+            <mat-form-field appearance="outline" class="flex-grow">
+              <mat-label>{{ field.name }} (Date)</mat-label>
+              <input matInput [matDatepicker]="dtPicker" [formControlName]="field.apiKey" />
+              <mat-datepicker-toggle matIconSuffix [for]="dtPicker"></mat-datepicker-toggle>
+              <mat-datepicker #dtPicker></mat-datepicker>
+            </mat-form-field>
+            <!-- Note: Full datetime picker requires 3rd party lib or custom component in Angular Material,
+                 so we fall back to just date, or ideally we would use a native datetime-local input -->
+            <mat-form-field appearance="outline" class="time-input">
+               <mat-label>Time</mat-label>
+               <input matInput type="time" placeholder="HH:MM" />
+            </mat-form-field>
+          </div>
+        }
+
+        @case ('email') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <input matInput type="email" [formControlName]="field.apiKey" [placeholder]="'Enter email'" />
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+            @if (formGroup.get(field.apiKey)?.hasError('email')) {
+              <mat-error>Invalid email format</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('phone') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <input matInput type="tel" [formControlName]="field.apiKey" [placeholder]="'Enter phone number'" />
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('url') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <input matInput type="url" [formControlName]="field.apiKey" [placeholder]="'https://...'" />
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('picklist') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <mat-select [formControlName]="field.apiKey">
+              @for (opt of field.options; track opt) {
+                <mat-option [value]="opt">{{ opt }}</mat-option>
+              }
+            </mat-select>
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @case ('lookup') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.name }}</mat-label>
+            <mat-select [formControlName]="field.apiKey">
+              @if (lookupLoading()[field.apiKey]) {
+                <mat-option disabled>Loading options...</mat-option>
+              } @else if (!lookupOptions()[field.apiKey] || lookupOptions()[field.apiKey].length === 0) {
+                <mat-option disabled>No records found</mat-option>
+              } @else {
+                @for (opt of lookupOptions()[field.apiKey]; track opt.id) {
+                  <mat-option [value]="opt.id">{{ opt.label }}</mat-option>
+                }
+              }
+            </mat-select>
+            @if (formGroup.get(field.apiKey)?.hasError('required')) {
+              <mat-error>{{ field.name }} is required</mat-error>
+            }
+          </mat-form-field>
+        }
+      }
+    </div>
+  }
+</form>

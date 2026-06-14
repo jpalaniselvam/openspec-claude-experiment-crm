@@ -1,0 +1,84 @@
+.field-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 480px;
+  padding-top: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.locked-properties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.locked-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container);
+}
+
+.locked-label {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.locked-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  code {
+    font-family: monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.type-badge {
+  font-family: monospace;
+  font-size: 0.75rem;
+  background: var(--mat-sys-surface-container-high);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--mat-sys-on-surface);
+}
+
+.lock-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--mat-sys-outline);
+}
+
+.flags-section {
+  margin-top: 8px;
+}
+
+.flags-label {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.flags-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.error-msg {
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}

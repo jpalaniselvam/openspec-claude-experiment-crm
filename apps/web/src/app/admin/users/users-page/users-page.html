@@ -1,9 +1,10 @@
-<mat-toolbar color="primary">
-  <span>Users</span>
-  <span class="spacer"></span>
-  <a mat-button routerLink="/dashboard">Dashboard</a>
-  <button mat-raised-button color="accent" (click)="openCreateDialog()">Add user</button>
-</mat-toolbar>
+<div class="page-header">
+  <h1 class="page-title">Users</h1>
+  <button mat-flat-button (click)="openCreateDialog()" id="btn-add-user">
+    <mat-icon>person_add</mat-icon>
+    Add User
+  </button>
+</div>
 
 <div class="users-content">
   @if (errorMessage()) {

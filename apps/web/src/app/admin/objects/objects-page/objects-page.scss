@@ -1,0 +1,153 @@
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-content {
+  padding: 24px;
+}
+
+.objects-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.object-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    color: white;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.object-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name-link {
+  font-weight: 500;
+  padding: 0;
+  min-width: unset;
+  height: unset;
+  line-height: 1.4;
+}
+
+.plural-name {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.api-name-badge {
+  font-family: monospace;
+  font-size: 0.8rem;
+  background: var(--mat-sys-surface-container);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--mat-sys-primary);
+}
+
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &.active {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+  }
+
+  &.archived {
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-outline);
+  }
+}
+
+.actions-cell {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.archived-row {
+  opacity: 0.6;
+}
+
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  gap: 12px;
+  text-align: center;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+    max-width: 360px;
+  }
+}
+
+.empty-icon {
+  font-size: 56px;
+  width: 56px;
+  height: 56px;
+  color: var(--mat-sys-outline);
+}
+
+.error-msg {
+  color: var(--mat-sys-error);
+  margin-bottom: 16px;
+}

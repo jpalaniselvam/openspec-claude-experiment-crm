@@ -1,0 +1,95 @@
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav
+    mode="side"
+    opened
+    [class.collapsed]="collapsed()"
+    class="shell-sidenav"
+  >
+    <div class="sidenav-header">
+      @if (!collapsed()) {
+        <span class="brand-name">CRM Admin</span>
+      }
+      <button
+        mat-icon-button
+        (click)="toggleSidebar()"
+        [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+        class="toggle-btn"
+      >
+        <mat-icon>{{ collapsed() ? 'menu' : 'menu_open' }}</mat-icon>
+      </button>
+    </div>
+
+    <mat-nav-list class="nav-list">
+      <div class="nav-section-label" [class.hidden]="collapsed()">WORKSPACE</div>
+
+      <a
+        mat-list-item
+        routerLink="/dashboard"
+        routerLinkActive="active-link"
+        [matTooltip]="collapsed() ? 'Dashboard' : ''"
+        matTooltipPosition="right"
+        id="nav-dashboard"
+      >
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        @if (!collapsed()) {
+          <span matListItemTitle>Dashboard</span>
+        }
+      </a>
+
+      <div class="nav-section-label" [class.hidden]="collapsed()">CONFIGURATION</div>
+
+      <a
+        mat-list-item
+        routerLink="/admin/objects"
+        routerLinkActive="active-link"
+        [matTooltip]="collapsed() ? 'Objects' : ''"
+        matTooltipPosition="right"
+        id="nav-objects"
+      >
+        <mat-icon matListItemIcon>category</mat-icon>
+        @if (!collapsed()) {
+          <span matListItemTitle>Objects</span>
+        }
+      </a>
+
+      <div class="nav-section-label" [class.hidden]="collapsed()">USER MANAGEMENT</div>
+
+      <a
+        mat-list-item
+        routerLink="/admin/users"
+        routerLinkActive="active-link"
+        [matTooltip]="collapsed() ? 'Users' : ''"
+        matTooltipPosition="right"
+        id="nav-users"
+      >
+        <mat-icon matListItemIcon>group</mat-icon>
+        @if (!collapsed()) {
+          <span matListItemTitle>Users</span>
+        }
+      </a>
+    </mat-nav-list>
+
+    <div class="sidenav-footer">
+      @if (!collapsed()) {
+        <div class="user-info">
+          <mat-icon>account_circle</mat-icon>
+          <span class="user-name">{{ user()?.displayName }}</span>
+        </div>
+      }
+      <button
+        mat-icon-button
+        (click)="logout()"
+        [matTooltip]="'Logout'"
+        matTooltipPosition="right"
+        id="btn-logout"
+        class="logout-btn"
+      >
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell-content">
+    <router-outlet />
+  </mat-sidenav-content>
+</mat-sidenav-container>

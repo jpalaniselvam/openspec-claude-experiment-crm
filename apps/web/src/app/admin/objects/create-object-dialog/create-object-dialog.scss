@@ -1,0 +1,75 @@
+.object-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 460px;
+  padding-top: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.api-name-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container);
+  margin-bottom: 8px;
+}
+
+.api-name-label {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.api-name-value {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mat-sys-primary);
+}
+
+.icon-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+.icon-preview {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4px;
+  background: var(--mat-sys-primary-container);
+
+  mat-icon {
+    color: white;
+  }
+}
+
+.icon-option, .icon-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  mat-icon {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.error-msg {
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}

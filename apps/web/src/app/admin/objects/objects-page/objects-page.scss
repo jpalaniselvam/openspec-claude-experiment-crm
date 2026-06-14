@@ -65,15 +65,14 @@
 
 .name-link {
   font-weight: 500;
-  padding: 0;
-  min-width: unset;
-  height: unset;
   line-height: 1.4;
-}
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+  cursor: pointer;
 
-.plural-name {
-  font-size: 0.75rem;
-  color: var(--mat-sys-on-surface-variant);
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .api-name-badge {

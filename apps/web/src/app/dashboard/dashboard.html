@@ -1,0 +1,12 @@
+<mat-toolbar color="primary">
+  <span>CRM</span>
+  <span class="spacer"></span>
+  @if (user()) {
+    <span class="user-info">{{ user()!.displayName }} ({{ user()!.organizationSlug }})</span>
+  }
+  <button mat-button (click)="logout()">Log out</button>
+</mat-toolbar>
+
+<div class="dashboard-content">
+  <p>You are signed in.</p>
+</div>

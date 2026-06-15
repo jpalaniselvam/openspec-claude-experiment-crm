@@ -13,6 +13,7 @@ export interface ObjectDefinition {
   color: string | null;
   schemaVersion: number;
   isArchived: boolean;
+  displayFieldApiKey: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -33,6 +34,7 @@ export interface UpdateObjectInput {
   icon?: string;
   color?: string;
   isArchived?: boolean;
+  displayFieldApiKey?: string | null;
 }
 
 export const COMMON_ICONS = [

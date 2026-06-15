@@ -16,6 +16,7 @@ export const objectDefinitions = pgTable(
     color: text("color"),
     schemaVersion: integer("schema_version").notNull().default(1),
     isArchived: boolean("is_archived").notNull().default(false),
+    displayFieldApiKey: text("display_field_api_key"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

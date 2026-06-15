@@ -9,6 +9,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { COMMON_ICONS, ObjectDefinition, ObjectsService, UpdateObjectInput } from '../objects.service';
+import { FieldDefinition } from '../fields.service';
+
+export interface EditObjectDialogData {
+  object: ObjectDefinition;
+  fields?: FieldDefinition[];
+}
+
+const DISPLAY_FIELD_DATA_TYPES = new Set(['text', 'long_text']);
 
 @Component({
   selector: 'app-edit-object-dialog',
@@ -30,7 +38,12 @@ export class EditObjectDialog implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly objectsService = inject(ObjectsService);
   private readonly dialogRef = inject(MatDialogRef<EditObjectDialog>);
-  readonly object = inject<ObjectDefinition>(MAT_DIALOG_DATA);
+  private readonly dialogData = inject<any>(MAT_DIALOG_DATA);
+
+  readonly object = (this.dialogData.object || this.dialogData) as ObjectDefinition;
+  readonly displayFieldOptions = ((this.dialogData.fields || []) as FieldDefinition[]).filter(
+    (field) => DISPLAY_FIELD_DATA_TYPES.has(field.dataType),
+  );
 
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -43,15 +56,19 @@ export class EditObjectDialog implements OnInit {
     description: [''],
     icon: ['category', Validators.required],
     color: ['#6750A4'],
+    displayFieldApiKey: [''],
   });
 
   ngOnInit(): void {
+
+    console.log('EditObjectDialog initialized with object:', this.dialogData);
     this.form.patchValue({
       name: this.object.name,
       pluralName: this.object.pluralName,
       description: this.object.description ?? '',
       icon: this.object.icon ?? '',
       color: this.object.color ?? '#6750A4',
+      displayFieldApiKey: this.object.displayFieldApiKey ?? '',
     });
     this.iconPreview.set(this.object.icon ?? '');
     this.form.get('icon')!.valueChanges.subscribe((icon) => {
@@ -69,6 +86,7 @@ export class EditObjectDialog implements OnInit {
       description: value.description ?? undefined,
       icon: value.icon ?? undefined,
       color: value.color ?? undefined,
+      displayFieldApiKey: value.displayFieldApiKey || null,
     };
 
     this.saving.set(true);

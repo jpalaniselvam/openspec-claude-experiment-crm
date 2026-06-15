@@ -43,6 +43,7 @@ const {
   getObjectDefinition,
   updateObjectDefinition,
   resolveObjectByApiName,
+  resolveEffectiveDisplayField,
 } = await import("./object-definition-service.js");
 
 const { updateObjectSchema } = await import("../validation/objects.js");
@@ -58,6 +59,7 @@ const OBJECT_ROW = {
   color: null,
   schemaVersion: 1,
   isArchived: false,
+  displayFieldApiKey: null,
   createdAt: new Date("2026-01-01"),
   updatedAt: new Date("2026-01-01"),
 };
@@ -72,6 +74,37 @@ const OBJECT_DTO = {
   color: null,
   schemaVersion: 1,
   isArchived: false,
+  displayFieldApiKey: null,
+};
+
+const TEXT_FIELD = {
+  id: "field-1",
+  apiKey: "name",
+  name: "Name",
+  dataType: "text",
+  isRequired: false,
+  isUnique: false,
+  isSearchable: false,
+  isReadOnly: false,
+  defaultValue: null,
+  options: null,
+  lookupObjectDefinitionId: null,
+  sortOrder: 0,
+};
+
+const NUMBER_FIELD = {
+  id: "field-2",
+  apiKey: "years_experience",
+  name: "Years Experience",
+  dataType: "number",
+  isRequired: false,
+  isUnique: false,
+  isSearchable: false,
+  isReadOnly: false,
+  defaultValue: null,
+  options: null,
+  lookupObjectDefinitionId: null,
+  sortOrder: 1,
 };
 
 beforeEach(() => {
@@ -100,6 +133,7 @@ describe("createObjectDefinition", () => {
     });
 
     expect(result).toEqual({ ok: true, object: OBJECT_DTO });
+    expect(result.ok && result.object.displayFieldApiKey).toBeNull();
     expect(valuesMock).toHaveBeenCalledWith(expect.objectContaining({ apiName: "doctor" }));
   });
 
@@ -163,6 +197,68 @@ describe("updateObjectDefinition", () => {
     const parsed = updateObjectSchema.safeParse({ name: "Physician", apiName: "physician" });
 
     expect(parsed.success).toBe(false);
+  });
+
+  it("sets a valid text/long_text display field", async () => {
+    limitMock.mockResolvedValueOnce([OBJECT_ROW]);
+    limitMock.mockResolvedValueOnce([TEXT_FIELD]);
+    updateReturningMock.mockResolvedValueOnce([{ ...OBJECT_ROW, displayFieldApiKey: "name" }]);
+
+    const result = await updateObjectDefinition("org-1", "obj-1", { displayFieldApiKey: "name" });
+
+    expect(result).toEqual({ ok: true, object: { ...OBJECT_DTO, displayFieldApiKey: "name" } });
+    expect(setMock).toHaveBeenCalledWith(expect.objectContaining({ displayFieldApiKey: "name" }));
+  });
+
+  it("clears the display field", async () => {
+    limitMock.mockResolvedValueOnce([{ ...OBJECT_ROW, displayFieldApiKey: "name" }]);
+    updateReturningMock.mockResolvedValueOnce([OBJECT_ROW]);
+
+    const result = await updateObjectDefinition("org-1", "obj-1", { displayFieldApiKey: null });
+
+    expect(result).toEqual({ ok: true, object: OBJECT_DTO });
+    expect(setMock).toHaveBeenCalledWith(expect.objectContaining({ displayFieldApiKey: null }));
+  });
+
+  it("rejects a display field referencing a non-text field", async () => {
+    limitMock.mockResolvedValueOnce([OBJECT_ROW]);
+    limitMock.mockResolvedValueOnce([NUMBER_FIELD]);
+
+    const result = await updateObjectDefinition("org-1", "obj-1", { displayFieldApiKey: "years_experience" });
+
+    expect(result).toEqual({ ok: false, code: "VALIDATION_ERROR", message: expect.any(String) });
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a display field referencing a nonexistent field", async () => {
+    limitMock.mockResolvedValueOnce([OBJECT_ROW]);
+    limitMock.mockResolvedValueOnce([]);
+
+    const result = await updateObjectDefinition("org-1", "obj-1", { displayFieldApiKey: "unknown" });
+
+    expect(result).toEqual({ ok: false, code: "VALIDATION_ERROR", message: expect.any(String) });
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("resolveEffectiveDisplayField", () => {
+  it("returns the explicit displayFieldApiKey when set", () => {
+    const object = { ...OBJECT_DTO, displayFieldApiKey: "name" };
+
+    expect(resolveEffectiveDisplayField(object, [TEXT_FIELD, NUMBER_FIELD])).toBe("name");
+  });
+
+  it("falls back to the first text/long_text field by sortOrder", () => {
+    const object = { ...OBJECT_DTO, displayFieldApiKey: null };
+    const laterTextField = { ...TEXT_FIELD, apiKey: "notes", dataType: "long_text", sortOrder: 5 };
+
+    expect(resolveEffectiveDisplayField(object, [NUMBER_FIELD, laterTextField, TEXT_FIELD])).toBe("name");
+  });
+
+  it("returns null when there is no eligible field", () => {
+    const object = { ...OBJECT_DTO, displayFieldApiKey: null };
+
+    expect(resolveEffectiveDisplayField(object, [NUMBER_FIELD])).toBeNull();
   });
 });
 

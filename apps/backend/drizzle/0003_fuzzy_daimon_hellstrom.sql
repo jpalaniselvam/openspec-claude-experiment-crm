@@ -1,0 +1,1 @@
+ALTER TABLE "object_definitions" ADD COLUMN "display_field_api_key" text;

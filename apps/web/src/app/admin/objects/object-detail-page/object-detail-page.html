@@ -19,6 +19,16 @@
           <div class="meta-row">
             <span class="meta-item">API Name: <code class="api-name-badge">{{ object()!.apiName }}</code></span>
             <span class="meta-item">Plural: <strong>{{ object()!.pluralName }}</strong></span>
+            @if (effectiveDisplayField(); as displayField) {
+              <span class="meta-item">
+                Display Field: <strong>{{ displayField.name }}</strong>
+                @if (displayField.isDefault) {
+                  <span class="hint-text">(default)</span>
+                }
+              </span>
+            } @else {
+              <span class="meta-item hint-text">No display field configured</span>
+            }
             @if (object()!.isArchived) {
               <span class="status-badge archived">Archived</span>
             }

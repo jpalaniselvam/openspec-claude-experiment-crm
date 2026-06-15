@@ -68,6 +68,17 @@
       <mat-label>Color</mat-label>
       <input matInput formControlName="color" type="color" id="input-edit-object-color" />
     </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Display Field</mat-label>
+      <mat-select formControlName="displayFieldApiKey" id="select-edit-object-display-field">
+        <mat-option value="">None (use default)</mat-option>
+        @for (field of displayFieldOptions; track field.id) {
+          <mat-option [value]="field.apiKey">{{ field.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Used to label records of this object throughout the app.</mat-hint>
+    </mat-form-field>
   </form>
 </mat-dialog-content>
 

@@ -12,7 +12,8 @@ import { ObjectDefinition, ObjectsService } from '../objects.service';
 import { FieldDefinition, FieldsService } from '../fields.service';
 import { CreateFieldDialog, CreateFieldDialogData } from '../create-field-dialog/create-field-dialog';
 import { EditFieldDialog, EditFieldDialogData } from '../edit-field-dialog/edit-field-dialog';
-import { EditObjectDialog } from '../edit-object-dialog/edit-object-dialog';
+import { EditObjectDialog, EditObjectDialogData } from '../edit-object-dialog/edit-object-dialog';
+import { resolveEffectiveDisplayField } from '../../../shared/display-field';
 
 @Component({
   selector: 'app-object-detail-page',
@@ -79,13 +80,25 @@ export class ObjectDetailPage implements OnInit {
     const obj = this.object();
     if (!obj) return;
 
-    const ref = this.dialog.open(EditObjectDialog, { width: '540px', data: obj });
+    const data: EditObjectDialogData = { object: obj, fields: this.fields() };
+    const ref = this.dialog.open(EditObjectDialog, { width: '540px', data });
     ref.afterClosed().subscribe((updated: ObjectDefinition | null) => {
       if (updated) {
         this.object.set(updated);
         this.snackBar.open(`Object "${updated.name}" updated`, 'Dismiss', { duration: 3000 });
       }
     });
+  }
+
+  effectiveDisplayField(): { name: string; isDefault: boolean } | null {
+    const obj = this.object();
+    if (!obj) return null;
+
+    const apiKey = resolveEffectiveDisplayField(obj, this.fields());
+    if (!apiKey) return null;
+
+    const field = this.fields().find((f) => f.apiKey === apiKey);
+    return { name: field?.name ?? apiKey, isDefault: !obj.displayFieldApiKey };
   }
 
   openCreateFieldDialog(): void {

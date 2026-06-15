@@ -1,0 +1,57 @@
+<div class="panel-container">
+  <div class="panel-header">
+    <h2 class="panel-title">{{ title() }}</h2>
+    <button mat-icon-button (click)="cancel()" matTooltip="Close" id="btn-close-panel">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-wrapper">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (notFound()) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">search_off</mat-icon>
+      <h3>Record not found</h3>
+      <p>This record may have been deleted.</p>
+    </div>
+  } @else {
+    <div class="panel-body">
+      @if (errorMessage()) {
+        <p class="error-msg">{{ errorMessage() }}</p>
+      }
+
+      <app-dynamic-form [fields]="fields()" [value]="record()?.data ?? null" [objects]="allObjects()" />
+
+      @if (mode() === 'edit') {
+        <div class="related-section">
+          <h3>Related</h3>
+          @if (related().length === 0) {
+            <p class="empty-hint">No related records.</p>
+          } @else {
+            @for (group of related(); track group.objectApiName + group.fieldApiKey) {
+              <div class="related-group">
+                <h4>{{ group.pluralName }} &middot; {{ group.fieldName }}</h4>
+                <ul class="related-list">
+                  @for (rec of group.records; track rec.id) {
+                    <li>
+                      <a [routerLink]="['/objects', group.objectApiName, rec.id]">{{ rec.displayValue }}</a>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+
+    <div class="panel-footer">
+      <button mat-button (click)="cancel()" id="btn-cancel-record">Cancel</button>
+      <button mat-flat-button color="primary" (click)="save()" [disabled]="saving()" id="btn-save-record">
+        {{ saving() ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  }
+</div>

@@ -55,13 +55,15 @@ describe("GET /api/objects/:objectId/fields", () => {
     expect(listFieldDefinitions).not.toHaveBeenCalled();
   });
 
-  it("returns 403 when the session user is not an admin", async () => {
+  it("returns 200 when the session user is a member", async () => {
     getSessionMock.mockResolvedValueOnce(MEMBER_SESSION);
+    vi.mocked(listFieldDefinitions).mockResolvedValueOnce({ ok: true, fields: [FIELD_DTO] });
 
     const res = await request(app).get("/api/objects/obj-1/fields");
 
-    expect(res.status).toBe(403);
-    expect(listFieldDefinitions).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true, data: [FIELD_DTO] });
+    expect(listFieldDefinitions).toHaveBeenCalledWith("org-1", "obj-1");
   });
 
   it("returns 404 OBJECT_NOT_FOUND when the object does not exist", async () => {

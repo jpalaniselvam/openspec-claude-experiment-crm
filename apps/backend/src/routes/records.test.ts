@@ -19,10 +19,11 @@ vi.mock("../services/record-service.js", () => ({
   getRecord: vi.fn(),
   updateRecord: vi.fn(),
   deleteRecord: vi.fn(),
+  listRelatedRecords: vi.fn(),
 }));
 
 const { resolveObjectByApiName } = await import("../services/object-definition-service.js");
-const { listRecords, createRecord, getRecord, updateRecord, deleteRecord } = await import(
+const { listRecords, createRecord, getRecord, updateRecord, deleteRecord, listRelatedRecords } = await import(
   "../services/record-service.js"
 );
 const { createApp } = await import("../app.js");
@@ -376,5 +377,82 @@ describe("DELETE /api/records/:objectApiName/:id", () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ success: true, data: {} });
     expect(deleteRecord).toHaveBeenCalledWith("org-1", OBJECT_DTO, "rec-1");
+  });
+});
+
+describe("GET /api/records/:objectApiName/:id/related", () => {
+  it("returns 401 when there is no active session", async () => {
+    getSessionMock.mockResolvedValueOnce(null);
+
+    const res = await request(app).get("/api/records/doctor/rec-1/related");
+
+    expect(res.status).toBe(401);
+    expect(resolveObjectByApiName).not.toHaveBeenCalled();
+  });
+
+  it("returns 404 OBJECT_NOT_FOUND for an unknown object apiName", async () => {
+    getSessionMock.mockResolvedValueOnce(ADMIN_SESSION);
+    vi.mocked(resolveObjectByApiName).mockResolvedValueOnce({
+      ok: false,
+      code: "OBJECT_NOT_FOUND",
+      message: "Object not found",
+    });
+
+    const res = await request(app).get("/api/records/unknown_object/rec-1/related");
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe("OBJECT_NOT_FOUND");
+    expect(getRecord).not.toHaveBeenCalled();
+  });
+
+  it("returns 404 RECORD_NOT_FOUND when the record does not exist or belongs to another org", async () => {
+    getSessionMock.mockResolvedValueOnce(ADMIN_SESSION);
+    vi.mocked(resolveObjectByApiName).mockResolvedValueOnce({ ok: true, object: OBJECT_DTO });
+    vi.mocked(getRecord).mockResolvedValueOnce({
+      ok: false,
+      code: "RECORD_NOT_FOUND",
+      message: "Record not found",
+    });
+
+    const res = await request(app).get("/api/records/doctor/unknown-rec/related");
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe("RECORD_NOT_FOUND");
+    expect(listRelatedRecords).not.toHaveBeenCalled();
+  });
+
+  it("returns 200 with related: [] when no lookup fields reference this record", async () => {
+    getSessionMock.mockResolvedValueOnce(MEMBER_SESSION);
+    vi.mocked(resolveObjectByApiName).mockResolvedValueOnce({ ok: true, object: OBJECT_DTO });
+    vi.mocked(getRecord).mockResolvedValueOnce({ ok: true, record: RECORD_DTO });
+    vi.mocked(listRelatedRecords).mockResolvedValueOnce([]);
+
+    const res = await request(app).get("/api/records/doctor/rec-1/related");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true, data: { related: [] } });
+  });
+
+  it("returns 200 with grouped related records", async () => {
+    getSessionMock.mockResolvedValueOnce(ADMIN_SESSION);
+    vi.mocked(resolveObjectByApiName).mockResolvedValueOnce({ ok: true, object: OBJECT_DTO });
+    vi.mocked(getRecord).mockResolvedValueOnce({ ok: true, record: RECORD_DTO });
+    const related = [
+      {
+        objectApiName: "appointment",
+        objectName: "Appointment",
+        pluralName: "Appointments",
+        fieldApiKey: "doctor",
+        fieldName: "Doctor",
+        records: [{ id: "rec-2", displayValue: "Checkup" }],
+      },
+    ];
+    vi.mocked(listRelatedRecords).mockResolvedValueOnce(related);
+
+    const res = await request(app).get("/api/records/doctor/rec-1/related");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true, data: { related } });
+    expect(listRelatedRecords).toHaveBeenCalledWith("org-1", OBJECT_DTO, "rec-1");
   });
 });

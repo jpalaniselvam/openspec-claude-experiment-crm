@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { requireAuth } from "../middleware/require-auth.js";
 import { sendError, sendSuccess } from "../lib/response.js";
 import { resolveObjectByApiName, type ObjectDefinitionDto } from "../services/object-definition-service.js";
-import { createRecord, deleteRecord, getRecord, listRecords, updateRecord } from "../services/record-service.js";
+import { createRecord, deleteRecord, getRecord, listRecords, listRelatedRecords, updateRecord } from "../services/record-service.js";
 
 export const recordsRouter = Router();
 
@@ -63,6 +63,23 @@ recordsRouter.get<{ objectApiName: string; id: string }>("/:objectApiName/:id", 
     }
 
     return sendSuccess(res, result.record);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+recordsRouter.get<{ objectApiName: string; id: string }>("/:objectApiName/:id/related", async (req, res, next) => {
+  try {
+    const object = await resolveObject(req, res);
+    if (!object) return;
+
+    const existing = await getRecord(req.currentUser!.organizationId, object, req.params.id);
+    if (!existing.ok) {
+      return sendError(res, 404, existing.code, existing.message);
+    }
+
+    const related = await listRelatedRecords(req.currentUser!.organizationId, object, req.params.id);
+    return sendSuccess(res, { related });
   } catch (err) {
     return next(err);
   }

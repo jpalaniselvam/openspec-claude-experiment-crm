@@ -67,6 +67,11 @@
   font-weight: 600;
 }
 
+.hint-text {
+  color: var(--mat-sys-outline);
+  font-style: italic;
+}
+
 .status-badge {
   padding: 2px 8px;
   border-radius: 12px;

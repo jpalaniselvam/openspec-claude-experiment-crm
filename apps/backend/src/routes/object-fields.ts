@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { requireAdmin } from "../middleware/require-admin.js";
+import { requireAuth } from "../middleware/require-auth.js";
 import { sendError, sendSuccess } from "../lib/response.js";
 import { createFieldSchema, updateFieldSchema } from "../validation/fields.js";
 import {
@@ -11,9 +12,7 @@ import {
 
 export const objectFieldsRouter = Router({ mergeParams: true });
 
-objectFieldsRouter.use(requireAdmin);
-
-objectFieldsRouter.get<{ objectId: string }>("/", async (req, res, next) => {
+objectFieldsRouter.get<{ objectId: string }>("/", requireAuth, async (req, res, next) => {
   try {
     const result = await listFieldDefinitions(req.currentUser!.organizationId, req.params.objectId);
 
@@ -27,7 +26,7 @@ objectFieldsRouter.get<{ objectId: string }>("/", async (req, res, next) => {
   }
 });
 
-objectFieldsRouter.post<{ objectId: string }>("/", async (req, res, next) => {
+objectFieldsRouter.post<{ objectId: string }>("/", requireAdmin, async (req, res, next) => {
   const parsed = createFieldSchema.safeParse(req.body);
   if (!parsed.success) {
     return sendError(res, 400, "VALIDATION_ERROR", parsed.error.issues[0]?.message ?? "Invalid request body");
@@ -47,7 +46,7 @@ objectFieldsRouter.post<{ objectId: string }>("/", async (req, res, next) => {
   }
 });
 
-objectFieldsRouter.patch<{ objectId: string; fieldId: string }>("/:fieldId", async (req, res, next) => {
+objectFieldsRouter.patch<{ objectId: string; fieldId: string }>("/:fieldId", requireAdmin, async (req, res, next) => {
   const parsed = updateFieldSchema.safeParse(req.body);
   if (!parsed.success) {
     return sendError(res, 400, "VALIDATION_ERROR", parsed.error.issues[0]?.message ?? "Invalid request body");
@@ -71,7 +70,7 @@ objectFieldsRouter.patch<{ objectId: string; fieldId: string }>("/:fieldId", asy
   }
 });
 
-objectFieldsRouter.delete<{ objectId: string; fieldId: string }>("/:fieldId", async (req, res, next) => {
+objectFieldsRouter.delete<{ objectId: string; fieldId: string }>("/:fieldId", requireAdmin, async (req, res, next) => {
   try {
     const result = await deleteFieldDefinition(req.currentUser!.organizationId, req.params.objectId, req.params.fieldId);
 

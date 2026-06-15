@@ -1,9 +1,9 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { records } from "../db/schema/index.js";
 import { listFieldDefinitionsForObject } from "./field-definition-service.js";
 import { buildRecordSchema } from "../validation/records.js";
-import type { ObjectDefinitionDto } from "./object-definition-service.js";
+import { listObjectDefinitions, resolveEffectiveDisplayField, type ObjectDefinitionDto } from "./object-definition-service.js";
 
 export interface RecordDto {
   id: string;
@@ -23,6 +23,20 @@ export type UpdateRecordResult =
   | { ok: false; code: "RECORD_NOT_FOUND"; message: string };
 
 export type DeleteRecordResult = { ok: true } | { ok: false; code: "RECORD_NOT_FOUND"; message: string };
+
+export interface RelatedRecordSummary {
+  id: string;
+  displayValue: string;
+}
+
+export interface RelatedRecordGroup {
+  objectApiName: string;
+  objectName: string;
+  pluralName: string;
+  fieldApiKey: string;
+  fieldName: string;
+  records: RelatedRecordSummary[];
+}
 
 function toDto(row: typeof records.$inferSelect): RecordDto {
   return {
@@ -116,4 +130,56 @@ export async function deleteRecord(organizationId: string, object: ObjectDefinit
   await db.delete(records).where(eq(records.id, id));
 
   return { ok: true };
+}
+
+export async function listRelatedRecords(
+  organizationId: string,
+  object: ObjectDefinitionDto,
+  recordId: string,
+): Promise<RelatedRecordGroup[]> {
+  const sourceObjects = await listObjectDefinitions(organizationId);
+  const groups: RelatedRecordGroup[] = [];
+
+  for (const sourceObject of sourceObjects) {
+    const fields = await listFieldDefinitionsForObject(sourceObject.id);
+    const lookupFields = fields.filter(
+      (field) => field.dataType === "lookup" && field.lookupObjectDefinitionId === object.id,
+    );
+
+    for (const lookupField of lookupFields) {
+      const rows = await db
+        .select()
+        .from(records)
+        .where(
+          and(
+            eq(records.organizationId, organizationId),
+            eq(records.objectDefinitionId, sourceObject.id),
+            sql`${records.data} ->> ${lookupField.apiKey} = ${recordId}`,
+          ),
+        );
+
+      if (rows.length === 0) {
+        continue;
+      }
+
+      const displayFieldApiKey = resolveEffectiveDisplayField(sourceObject, fields);
+
+      groups.push({
+        objectApiName: sourceObject.apiName,
+        objectName: sourceObject.name,
+        pluralName: sourceObject.pluralName,
+        fieldApiKey: lookupField.apiKey,
+        fieldName: lookupField.name,
+        records: rows.map((row) => ({
+          id: row.id,
+          displayValue:
+            displayFieldApiKey && typeof row.data[displayFieldApiKey] === "string"
+              ? (row.data[displayFieldApiKey] as string)
+              : row.id,
+        })),
+      });
+    }
+  }
+
+  return groups;
 }

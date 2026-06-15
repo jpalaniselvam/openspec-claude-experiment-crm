@@ -9,7 +9,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreateObjectDialog } from '../create-object-dialog/create-object-dialog';
-import { EditObjectDialog } from '../edit-object-dialog/edit-object-dialog';
+import { EditObjectDialog, EditObjectDialogData } from '../edit-object-dialog/edit-object-dialog';
+import { FieldsService } from '../fields.service';
 import { ObjectDefinition, ObjectsService } from '../objects.service';
 
 @Component({
@@ -29,6 +30,7 @@ import { ObjectDefinition, ObjectsService } from '../objects.service';
 })
 export class ObjectsPage implements OnInit {
   private readonly objectsService = inject(ObjectsService);
+  private readonly fieldsService = inject(FieldsService);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -71,8 +73,13 @@ export class ObjectsPage implements OnInit {
     });
   }
 
-  openEditDialog(obj: ObjectDefinition): void {
-    const ref = this.dialog.open(EditObjectDialog, { width: '540px', data: obj });
+  async openEditDialog(obj: ObjectDefinition): Promise<void> {
+    const fieldsRes = await this.fieldsService.list(obj.id);
+    const data: EditObjectDialogData = {
+      object: obj,
+      fields: fieldsRes.success ? fieldsRes.data : [],
+    };
+    const ref = this.dialog.open(EditObjectDialog, { width: '540px', data });
     ref.afterClosed().subscribe((updated: ObjectDefinition | null) => {
       if (updated) {
         this.allObjects.update((list) => list.map((o) => (o.id === updated.id ? updated : o)));

@@ -1,0 +1,116 @@
+<mat-drawer-container class="worksheet-container" [hasBackdrop]="true">
+  <mat-drawer mode="over" position="end" [opened]="panelOpen()" (openedChange)="onDrawerOpenedChange($event)" class="record-drawer">
+    <router-outlet></router-outlet>
+  </mat-drawer>
+
+  <mat-drawer-content>
+    <div class="worksheet-content">
+      @if (loading()) {
+        <div class="loading-wrapper">
+          <mat-spinner diameter="40" />
+        </div>
+      } @else if (objectNotFound()) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">search_off</mat-icon>
+          <h3>Object not found</h3>
+          <p>"{{ apiName() }}" doesn't exist or has been archived.</p>
+        </div>
+      } @else if (errorMessage()) {
+        <p class="error-msg">{{ errorMessage() }}</p>
+      } @else if (object()) {
+        <div class="page-header">
+          <div class="header-left">
+            <h1 class="page-title">{{ object()!.pluralName }}</h1>
+            <p class="page-subtitle">{{ records().length }} records</p>
+          </div>
+          <div class="header-actions">
+            <button mat-flat-button color="primary" [routerLink]="['/objects', apiName(), 'new']" id="btn-new-record">
+              <mat-icon>add</mat-icon>
+              New
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search</mat-label>
+            <input matInput [value]="search()" (input)="onSearchInput($event)" placeholder="Search records..." id="input-search" />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          @for (field of sortedFields(); track field.id) {
+            @if (isMultiSelectFilter(field)) {
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>{{ field.name }}</mat-label>
+                <mat-select multiple [value]="multiFilters()[field.apiKey]" (selectionChange)="onMultiFilterChange(field.apiKey, $event.value)">
+                  @for (opt of filterOptions(field); track opt) {
+                    <mat-option [value]="opt">{{ opt }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            } @else {
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>{{ field.name }}</mat-label>
+                <input matInput [value]="textFilters()[field.apiKey] ?? ''" (input)="onTextFilterChange(field.apiKey, $event)" />
+              </mat-form-field>
+            }
+          }
+        </div>
+
+        @if (records().length === 0) {
+          <div class="empty-state">
+            <mat-icon class="empty-icon">table_rows</mat-icon>
+            <h3>No records yet</h3>
+            <p>Create your first {{ object()!.name }} record to get started.</p>
+            <button mat-flat-button color="primary" [routerLink]="['/objects', apiName(), 'new']" id="btn-new-record-empty">
+              <mat-icon>add</mat-icon>
+              New {{ object()!.name }}
+            </button>
+          </div>
+        } @else if (filteredRows().length === 0) {
+          <div class="empty-state">
+            <mat-icon class="empty-icon">filter_alt_off</mat-icon>
+            <h3>No matching records</h3>
+            <p>Try adjusting your search or filters.</p>
+          </div>
+        } @else {
+          <table mat-table [dataSource]="filteredRows()" class="worksheet-table">
+            @for (field of sortedFields(); track field.id) {
+              <ng-container [matColumnDef]="field.apiKey">
+                <th mat-header-cell *matHeaderCellDef (click)="toggleSort(field.apiKey)" class="sortable-header">
+                  {{ field.name }}
+                  <mat-icon class="sort-icon">{{ sortIcon(field.apiKey) }}</mat-icon>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.cells[field.apiKey] }}</td>
+              </ng-container>
+            }
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row" class="actions-cell">
+                <button
+                  mat-icon-button
+                  (click)="openDeleteDialog(row.record, $event)"
+                  matTooltip="Delete record"
+                  color="warn"
+                  [id]="'btn-delete-record-' + row.record.id"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns()"
+              class="record-row"
+              [routerLink]="['/objects', apiName(), row.record.id]"
+              [id]="'row-record-' + row.record.id"
+            ></tr>
+          </table>
+        }
+      }
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>

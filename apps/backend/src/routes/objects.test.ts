@@ -36,6 +36,7 @@ const OBJECT_DTO = {
   color: null,
   schemaVersion: 1,
   isArchived: false,
+  displayFieldApiKey: null,
 };
 
 beforeEach(() => {
@@ -52,13 +53,15 @@ describe("GET /api/objects", () => {
     expect(listObjectDefinitions).not.toHaveBeenCalled();
   });
 
-  it("returns 403 when the session user is not an admin", async () => {
+  it("returns 200 when the session user is a member", async () => {
     getSessionMock.mockResolvedValueOnce(MEMBER_SESSION);
+    vi.mocked(listObjectDefinitions).mockResolvedValueOnce([OBJECT_DTO]);
 
     const res = await request(app).get("/api/objects");
 
-    expect(res.status).toBe(403);
-    expect(listObjectDefinitions).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true, data: [OBJECT_DTO] });
+    expect(listObjectDefinitions).toHaveBeenCalledWith("org-1");
   });
 
   it("returns the organization's object definitions for an admin", async () => {
@@ -140,13 +143,15 @@ describe("GET /api/objects/:id", () => {
     expect(getObjectDefinition).not.toHaveBeenCalled();
   });
 
-  it("returns 403 when the session user is not an admin", async () => {
+  it("returns 200 when the session user is a member", async () => {
     getSessionMock.mockResolvedValueOnce(MEMBER_SESSION);
+    vi.mocked(getObjectDefinition).mockResolvedValueOnce({ ok: true, object: OBJECT_DTO });
 
     const res = await request(app).get("/api/objects/obj-1");
 
-    expect(res.status).toBe(403);
-    expect(getObjectDefinition).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true, data: OBJECT_DTO });
+    expect(getObjectDefinition).toHaveBeenCalledWith("org-1", "obj-1");
   });
 
   it("returns 404 OBJECT_NOT_FOUND when the object does not exist", async () => {
@@ -237,5 +242,33 @@ describe("PATCH /api/objects/:id", () => {
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe("OBJECT_NOT_FOUND");
+  });
+
+  it("returns 200 with the updated displayFieldApiKey", async () => {
+    getSessionMock.mockResolvedValueOnce(ADMIN_SESSION);
+    vi.mocked(updateObjectDefinition).mockResolvedValueOnce({
+      ok: true,
+      object: { ...OBJECT_DTO, displayFieldApiKey: "name" },
+    });
+
+    const res = await request(app).patch("/api/objects/obj-1").send({ displayFieldApiKey: "name" });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true, data: { ...OBJECT_DTO, displayFieldApiKey: "name" } });
+    expect(updateObjectDefinition).toHaveBeenCalledWith("org-1", "obj-1", { displayFieldApiKey: "name" });
+  });
+
+  it("returns 400 VALIDATION_ERROR when displayFieldApiKey is invalid", async () => {
+    getSessionMock.mockResolvedValueOnce(ADMIN_SESSION);
+    vi.mocked(updateObjectDefinition).mockResolvedValueOnce({
+      ok: false,
+      code: "VALIDATION_ERROR",
+      message: "displayFieldApiKey must reference a text or long_text field on this object",
+    });
+
+    const res = await request(app).patch("/api/objects/obj-1").send({ displayFieldApiKey: "years_experience" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe("VALIDATION_ERROR");
   });
 });

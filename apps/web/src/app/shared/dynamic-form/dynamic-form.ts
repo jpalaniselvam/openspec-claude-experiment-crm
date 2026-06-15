@@ -7,10 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatNativeDateModule } from '@angular/material/core';
-import { FieldDefinition } from '../../admin/objects/fields.service';
+import { FieldDefinition, FieldsService } from '../../admin/objects/fields.service';
 import { ObjectDefinition } from '../../admin/objects/objects.service';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { RecordsService } from '../../records/records.service';
+import { resolveEffectiveDisplayField } from '../display-field';
 
 @Component({
   selector: 'app-dynamic-form',
@@ -33,7 +33,8 @@ export class DynamicFormComponent implements OnChanges {
   @Input() objects?: ObjectDefinition[];
 
   private readonly fb = inject(FormBuilder);
-  private readonly http = inject(HttpClient);
+  private readonly recordsService = inject(RecordsService);
+  private readonly fieldsService = inject(FieldsService);
 
   readonly formGroup = this.fb.group({});
   readonly lookupOptions = signal<Record<string, { id: string; label: string }[]>>({});
@@ -97,14 +98,16 @@ export class DynamicFormComponent implements OnChanges {
       this.lookupLoading.update((loading) => ({ ...loading, [field.apiKey]: true }));
 
       try {
-        const response = await firstValueFrom(
-          this.http.get<{ success: boolean; data: any[] }>(`/api/records/${targetObj.apiName}`)
-        );
+        const [recordsRes, fieldsRes] = await Promise.all([
+          this.recordsService.list(targetObj.apiName),
+          this.fieldsService.list(targetObj.id),
+        ]);
 
-        if (response?.success && response.data) {
-          const options = response.data.map((record) => {
-            // Try to find a reasonable display label: name, title, or just ID
-            const label = record.name || record.title || record.id || 'Unknown';
+        if (recordsRes.success && fieldsRes.success) {
+          const displayApiKey = resolveEffectiveDisplayField(targetObj, fieldsRes.data);
+          const options = recordsRes.data.items.map((record) => {
+            const value = displayApiKey ? record.data[displayApiKey] : undefined;
+            const label = typeof value === 'string' && value ? value : record.id;
             return { id: record.id, label };
           });
           this.lookupOptions.update((opts) => ({ ...opts, [field.apiKey]: options }));

@@ -1,7 +1,8 @@
 import { and, asc, eq } from "drizzle-orm";
 import { db } from "../db/client.js";
-import { objectDefinitions } from "../db/schema/index.js";
+import { fieldDefinitions, objectDefinitions } from "../db/schema/index.js";
 import { slugify } from "../lib/slugify.js";
+import type { FieldDefinitionDto } from "./field-definition-service.js";
 import type { CreateObjectInput, UpdateObjectInput } from "../validation/objects.js";
 
 export interface ObjectDefinitionDto {
@@ -14,6 +15,7 @@ export interface ObjectDefinitionDto {
   color: string | null;
   schemaVersion: number;
   isArchived: boolean;
+  displayFieldApiKey: string | null;
 }
 
 export type CreateObjectResult =
@@ -24,7 +26,10 @@ export type GetObjectResult =
   | { ok: true; object: ObjectDefinitionDto }
   | { ok: false; code: "OBJECT_NOT_FOUND"; message: string };
 
-export type UpdateObjectResult = GetObjectResult;
+export type UpdateObjectResult =
+  | { ok: true; object: ObjectDefinitionDto }
+  | { ok: false; code: "OBJECT_NOT_FOUND"; message: string }
+  | { ok: false; code: "VALIDATION_ERROR"; message: string };
 
 function toDto(row: typeof objectDefinitions.$inferSelect): ObjectDefinitionDto {
   return {
@@ -37,7 +42,29 @@ function toDto(row: typeof objectDefinitions.$inferSelect): ObjectDefinitionDto 
     color: row.color,
     schemaVersion: row.schemaVersion,
     isArchived: row.isArchived,
+    displayFieldApiKey: row.displayFieldApiKey,
   };
+}
+
+const DISPLAY_FIELD_DATA_TYPES = new Set(["text", "long_text"]);
+
+/**
+ * Resolves the apiKey of the field used to display a human-readable label for a record of this object:
+ * the explicit `displayFieldApiKey`, or the first `text`/`long_text` field by `sortOrder`, or `null`.
+ */
+export function resolveEffectiveDisplayField(
+  object: ObjectDefinitionDto,
+  fields: FieldDefinitionDto[],
+): string | null {
+  if (object.displayFieldApiKey) {
+    return object.displayFieldApiKey;
+  }
+
+  const candidates = fields
+    .filter((field) => DISPLAY_FIELD_DATA_TYPES.has(field.dataType))
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  return candidates[0]?.apiKey ?? null;
 }
 
 export async function listObjectDefinitions(organizationId: string): Promise<ObjectDefinitionDto[]> {
@@ -115,6 +142,24 @@ export async function updateObjectDefinition(
     return { ok: false, code: "OBJECT_NOT_FOUND", message: "Object definition not found" };
   }
 
+  if (input.displayFieldApiKey !== undefined && input.displayFieldApiKey !== null) {
+    const [field] = await db
+      .select()
+      .from(fieldDefinitions)
+      .where(
+        and(eq(fieldDefinitions.objectDefinitionId, id), eq(fieldDefinitions.apiKey, input.displayFieldApiKey)),
+      )
+      .limit(1);
+
+    if (!field || !DISPLAY_FIELD_DATA_TYPES.has(field.dataType)) {
+      return {
+        ok: false,
+        code: "VALIDATION_ERROR",
+        message: "displayFieldApiKey must reference a text or long_text field on this object",
+      };
+    }
+  }
+
   const [updated] = await db
     .update(objectDefinitions)
     .set({
@@ -124,6 +169,7 @@ export async function updateObjectDefinition(
       ...(input.icon !== undefined ? { icon: input.icon } : {}),
       ...(input.color !== undefined ? { color: input.color } : {}),
       ...(input.isArchived !== undefined ? { isArchived: input.isArchived } : {}),
+      ...(input.displayFieldApiKey !== undefined ? { displayFieldApiKey: input.displayFieldApiKey } : {}),
       updatedAt: new Date(),
     })
     .where(eq(objectDefinitions.id, id))

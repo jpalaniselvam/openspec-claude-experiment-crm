@@ -7,7 +7,7 @@
   >
     <div class="sidenav-header">
       @if (!collapsed()) {
-        <span class="brand-name">CRM Admin</span>
+        <span class="brand-name">CRM</span>
       }
       <button
         mat-icon-button
@@ -36,37 +36,57 @@
         }
       </a>
 
-      <div class="nav-section-label" [class.hidden]="collapsed()">CONFIGURATION</div>
+      @if (objects().length > 0) {
+        <div class="nav-section-label" [class.hidden]="collapsed()">DATA</div>
 
-      <a
-        mat-list-item
-        routerLink="/admin/objects"
-        routerLinkActive="active-link"
-        [matTooltip]="collapsed() ? 'Objects' : ''"
-        matTooltipPosition="right"
-        id="nav-objects"
-      >
-        <mat-icon matListItemIcon>category</mat-icon>
-        @if (!collapsed()) {
-          <span matListItemTitle>Objects</span>
+        @for (object of objects(); track object.id) {
+          <a
+            mat-list-item
+            [routerLink]="['/objects', object.apiName]"
+            routerLinkActive="active-link"
+            [matTooltip]="collapsed() ? object.pluralName : ''"
+            matTooltipPosition="right"
+            [id]="'nav-object-' + object.apiName"
+          >
+            <mat-icon matListItemIcon>{{ object.icon || 'category' }}</mat-icon>
+            @if (!collapsed()) {
+              <span matListItemTitle>{{ object.pluralName }}</span>
+            }
+          </a>
         }
-      </a>
+      }
 
-      <div class="nav-section-label" [class.hidden]="collapsed()">USER MANAGEMENT</div>
+      @if (isAdmin()) {
+        <div class="nav-section-label" [class.hidden]="collapsed()">CONFIGURATION</div>
 
-      <a
-        mat-list-item
-        routerLink="/admin/users"
-        routerLinkActive="active-link"
-        [matTooltip]="collapsed() ? 'Users' : ''"
-        matTooltipPosition="right"
-        id="nav-users"
-      >
-        <mat-icon matListItemIcon>group</mat-icon>
-        @if (!collapsed()) {
-          <span matListItemTitle>Users</span>
-        }
-      </a>
+        <a
+          mat-list-item
+          routerLink="/admin/objects"
+          routerLinkActive="active-link"
+          [matTooltip]="collapsed() ? 'Objects' : ''"
+          matTooltipPosition="right"
+          id="nav-objects"
+        >
+          <mat-icon matListItemIcon>category</mat-icon>
+          @if (!collapsed()) {
+            <span matListItemTitle>Objects</span>
+          }
+        </a>
+
+        <a
+          mat-list-item
+          routerLink="/admin/users"
+          routerLinkActive="active-link"
+          [matTooltip]="collapsed() ? 'Users' : ''"
+          matTooltipPosition="right"
+          id="nav-users"
+        >
+          <mat-icon matListItemIcon>group</mat-icon>
+          @if (!collapsed()) {
+            <span matListItemTitle>Users</span>
+          }
+        </a>
+      }
     </mat-nav-list>
 
     <div class="sidenav-footer">

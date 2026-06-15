@@ -50,7 +50,19 @@ vi.mock("./field-definition-service.js", () => ({
   listFieldDefinitionsForObject,
 }));
 
-const { createRecord, getRecord, updateRecord, deleteRecord, listRecords } = await import("./record-service.js");
+const { listObjectDefinitions, resolveEffectiveDisplayField } = vi.hoisted(() => ({
+  listObjectDefinitions: vi.fn(),
+  resolveEffectiveDisplayField: vi.fn(),
+}));
+
+vi.mock("./object-definition-service.js", () => ({
+  listObjectDefinitions,
+  resolveEffectiveDisplayField,
+}));
+
+const { createRecord, getRecord, updateRecord, deleteRecord, listRecords, listRelatedRecords } = await import(
+  "./record-service.js"
+);
 
 const OBJECT: ObjectDefinitionDto = {
   id: "obj-1",
@@ -62,6 +74,59 @@ const OBJECT: ObjectDefinitionDto = {
   color: null,
   schemaVersion: 1,
   isArchived: false,
+  displayFieldApiKey: null,
+};
+
+const SOURCE_OBJECT: ObjectDefinitionDto = {
+  id: "obj-2",
+  apiName: "appointment",
+  name: "Appointment",
+  pluralName: "Appointments",
+  description: null,
+  icon: null,
+  color: null,
+  schemaVersion: 1,
+  isArchived: false,
+  displayFieldApiKey: null,
+};
+
+const LOOKUP_FIELD: FieldDefinitionDto = {
+  id: "field-2",
+  apiKey: "doctor",
+  name: "Doctor",
+  dataType: "lookup",
+  isRequired: false,
+  isUnique: false,
+  isSearchable: false,
+  isReadOnly: false,
+  defaultValue: null,
+  options: null,
+  lookupObjectDefinitionId: "obj-1",
+  sortOrder: 0,
+};
+
+const TITLE_FIELD: FieldDefinitionDto = {
+  id: "field-3",
+  apiKey: "title",
+  name: "Title",
+  dataType: "text",
+  isRequired: false,
+  isUnique: false,
+  isSearchable: false,
+  isReadOnly: false,
+  defaultValue: null,
+  options: null,
+  lookupObjectDefinitionId: null,
+  sortOrder: 0,
+};
+
+const RELATED_RECORD_ROW = {
+  id: "rec-2",
+  organizationId: "org-1",
+  objectDefinitionId: "obj-2",
+  data: { title: "Checkup", doctor: "rec-1" },
+  createdAt: new Date("2026-01-01"),
+  updatedAt: new Date("2026-01-01"),
 };
 
 const REQUIRED_NUMBER_FIELD: FieldDefinitionDto = {
@@ -203,5 +268,57 @@ describe("deleteRecord", () => {
 
     expect(result).toEqual({ ok: true });
     expect(deleteMock).toHaveBeenCalled();
+  });
+});
+
+describe("listRelatedRecords", () => {
+  it("groups matching records by source object and lookup field, resolving displayValue from the effective display field", async () => {
+    listObjectDefinitions.mockResolvedValueOnce([SOURCE_OBJECT]);
+    listFieldDefinitionsForObject.mockResolvedValueOnce([LOOKUP_FIELD, TITLE_FIELD]);
+    whereMock.mockResolvedValueOnce([RELATED_RECORD_ROW]);
+    resolveEffectiveDisplayField.mockReturnValueOnce("title");
+
+    const result = await listRelatedRecords("org-1", OBJECT, "rec-1");
+
+    expect(result).toEqual([
+      {
+        objectApiName: "appointment",
+        objectName: "Appointment",
+        pluralName: "Appointments",
+        fieldApiKey: "doctor",
+        fieldName: "Doctor",
+        records: [{ id: "rec-2", displayValue: "Checkup" }],
+      },
+    ]);
+  });
+
+  it("falls back to the record id when the source object has no effective display field", async () => {
+    listObjectDefinitions.mockResolvedValueOnce([SOURCE_OBJECT]);
+    listFieldDefinitionsForObject.mockResolvedValueOnce([LOOKUP_FIELD]);
+    whereMock.mockResolvedValueOnce([RELATED_RECORD_ROW]);
+    resolveEffectiveDisplayField.mockReturnValueOnce(null);
+
+    const result = await listRelatedRecords("org-1", OBJECT, "rec-1");
+
+    expect(result[0]?.records).toEqual([{ id: "rec-2", displayValue: "rec-2" }]);
+  });
+
+  it("returns an empty array when no field definitions reference the object", async () => {
+    listObjectDefinitions.mockResolvedValueOnce([SOURCE_OBJECT]);
+    listFieldDefinitionsForObject.mockResolvedValueOnce([TITLE_FIELD]);
+
+    const result = await listRelatedRecords("org-1", OBJECT, "rec-1");
+
+    expect(result).toEqual([]);
+  });
+
+  it("excludes (source object, lookup field) pairs with no matching records", async () => {
+    listObjectDefinitions.mockResolvedValueOnce([SOURCE_OBJECT]);
+    listFieldDefinitionsForObject.mockResolvedValueOnce([LOOKUP_FIELD]);
+    whereMock.mockResolvedValueOnce([]);
+
+    const result = await listRelatedRecords("org-1", OBJECT, "rec-1");
+
+    expect(result).toEqual([]);
   });
 });

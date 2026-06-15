@@ -24,6 +24,7 @@ export const updateObjectSchema = z
     icon: z.string().trim().optional(),
     color: z.string().trim().optional(),
     isArchived: z.boolean().optional(),
+    displayFieldApiKey: z.string().trim().min(1).nullable().optional(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {

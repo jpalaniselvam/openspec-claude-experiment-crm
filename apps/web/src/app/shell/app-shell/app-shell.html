@@ -75,6 +75,20 @@
 
         <a
           mat-list-item
+          routerLink="/admin/templates"
+          routerLinkActive="active-link"
+          [matTooltip]="collapsed() ? 'Templates' : ''"
+          matTooltipPosition="right"
+          id="nav-templates"
+        >
+          <mat-icon matListItemIcon>dashboard_customize</mat-icon>
+          @if (!collapsed()) {
+            <span matListItemTitle>Templates</span>
+          }
+        </a>
+
+        <a
+          mat-list-item
           routerLink="/admin/users"
           routerLinkActive="active-link"
           [matTooltip]="collapsed() ? 'Users' : ''"

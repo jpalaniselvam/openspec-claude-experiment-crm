@@ -10,6 +10,7 @@ import { usersRouter } from "./routes/users.js";
 import { objectsRouter } from "./routes/objects.js";
 import { objectFieldsRouter } from "./routes/object-fields.js";
 import { recordsRouter } from "./routes/records.js";
+import { templatesRouter } from "./routes/templates.js";
 
 export function createApp() {
   const app = express();
@@ -29,6 +30,7 @@ export function createApp() {
   app.use("/api/objects/:objectId/fields", objectFieldsRouter);
   app.use("/api/objects", objectsRouter);
   app.use("/api/records", recordsRouter);
+  app.use("/api/templates", templatesRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

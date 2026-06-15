@@ -1,0 +1,102 @@
+import type { Template } from "./types.js";
+
+export const realEstateCrmTemplate: Template = {
+  key: "real-estate-crm",
+  name: "Real Estate CRM",
+  description: "Track agents, properties, sellers, buyers, and leads through your real estate pipeline.",
+  objects: [
+    {
+      apiName: "agent",
+      name: "Agent",
+      pluralName: "Agents",
+      description: "A real estate agent.",
+      fields: [
+        { apiKey: "name", name: "Name", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "email", name: "Email", dataType: "email", isSearchable: true, sortOrder: 1 },
+        { apiKey: "phone", name: "Phone", dataType: "phone", sortOrder: 2 },
+        { apiKey: "license_number", name: "License Number", dataType: "text", sortOrder: 3 },
+      ],
+    },
+    {
+      apiName: "property",
+      name: "Property",
+      pluralName: "Properties",
+      description: "A property listed for sale.",
+      fields: [
+        { apiKey: "address", name: "Address", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        {
+          apiKey: "listing_agent",
+          name: "Listing Agent",
+          dataType: "lookup",
+          lookupTargetApiName: "agent",
+          sortOrder: 1,
+        },
+        {
+          apiKey: "property_type",
+          name: "Property Type",
+          dataType: "picklist",
+          options: ["House", "Condo", "Apartment", "Land", "Commercial"],
+          sortOrder: 2,
+        },
+        { apiKey: "price", name: "Price", dataType: "decimal", sortOrder: 3 },
+        { apiKey: "bedrooms", name: "Bedrooms", dataType: "number", sortOrder: 4 },
+        { apiKey: "bathrooms", name: "Bathrooms", dataType: "number", sortOrder: 5 },
+        {
+          apiKey: "status",
+          name: "Status",
+          dataType: "picklist",
+          options: ["Active", "Pending", "Sold", "Off Market"],
+          sortOrder: 6,
+        },
+        { apiKey: "description", name: "Description", dataType: "long_text", sortOrder: 7 },
+      ],
+    },
+    {
+      apiName: "seller",
+      name: "Seller",
+      pluralName: "Sellers",
+      description: "A person selling a property.",
+      fields: [
+        { apiKey: "name", name: "Name", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "property", name: "Property", dataType: "lookup", lookupTargetApiName: "property", sortOrder: 1 },
+        { apiKey: "email", name: "Email", dataType: "email", isSearchable: true, sortOrder: 2 },
+        { apiKey: "phone", name: "Phone", dataType: "phone", sortOrder: 3 },
+      ],
+    },
+    {
+      apiName: "buyer",
+      name: "Buyer",
+      pluralName: "Buyers",
+      description: "A person looking to buy a property.",
+      fields: [
+        { apiKey: "name", name: "Name", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "agent", name: "Agent", dataType: "lookup", lookupTargetApiName: "agent", sortOrder: 1 },
+        { apiKey: "email", name: "Email", dataType: "email", isSearchable: true, sortOrder: 2 },
+        { apiKey: "phone", name: "Phone", dataType: "phone", sortOrder: 3 },
+        { apiKey: "budget", name: "Budget", dataType: "decimal", sortOrder: 4 },
+        { apiKey: "notes", name: "Notes", dataType: "long_text", sortOrder: 5 },
+      ],
+    },
+    {
+      apiName: "lead",
+      name: "Lead",
+      pluralName: "Leads",
+      description: "A prospective buyer or seller interested in a property.",
+      fields: [
+        { apiKey: "name", name: "Name", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "property", name: "Property", dataType: "lookup", lookupTargetApiName: "property", sortOrder: 1 },
+        { apiKey: "agent", name: "Agent", dataType: "lookup", lookupTargetApiName: "agent", sortOrder: 2 },
+        { apiKey: "email", name: "Email", dataType: "email", isSearchable: true, sortOrder: 3 },
+        { apiKey: "phone", name: "Phone", dataType: "phone", sortOrder: 4 },
+        {
+          apiKey: "status",
+          name: "Status",
+          dataType: "picklist",
+          options: ["New", "Contacted", "Qualified", "Lost"],
+          sortOrder: 5,
+        },
+        { apiKey: "notes", name: "Notes", dataType: "long_text", sortOrder: 6 },
+      ],
+    },
+  ],
+};

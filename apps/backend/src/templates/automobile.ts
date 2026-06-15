@@ -1,0 +1,101 @@
+import type { Template } from "./types.js";
+
+export const automobileTemplate: Template = {
+  key: "automobile",
+  name: "Automobile",
+  description: "Track customers, salespeople, vehicles, sales orders, and service appointments for a dealership.",
+  objects: [
+    {
+      apiName: "customer",
+      name: "Customer",
+      pluralName: "Customers",
+      description: "A person who buys or services vehicles.",
+      fields: [
+        { apiKey: "name", name: "Name", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "email", name: "Email", dataType: "email", isSearchable: true, sortOrder: 1 },
+        { apiKey: "phone", name: "Phone", dataType: "phone", sortOrder: 2 },
+        { apiKey: "address", name: "Address", dataType: "long_text", sortOrder: 3 },
+      ],
+    },
+    {
+      apiName: "salesperson",
+      name: "Salesperson",
+      pluralName: "Salespeople",
+      description: "A dealership employee who sells vehicles.",
+      fields: [
+        { apiKey: "name", name: "Name", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "email", name: "Email", dataType: "email", isSearchable: true, sortOrder: 1 },
+        { apiKey: "phone", name: "Phone", dataType: "phone", sortOrder: 2 },
+      ],
+    },
+    {
+      apiName: "vehicle",
+      name: "Vehicle",
+      pluralName: "Vehicles",
+      description: "A vehicle in dealership inventory.",
+      fields: [
+        { apiKey: "name", name: "Name", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "owner", name: "Owner", dataType: "lookup", lookupTargetApiName: "customer", sortOrder: 1 },
+        { apiKey: "vin", name: "VIN", dataType: "text", isUnique: true, sortOrder: 2 },
+        { apiKey: "make", name: "Make", dataType: "text", sortOrder: 3 },
+        { apiKey: "model", name: "Model", dataType: "text", sortOrder: 4 },
+        { apiKey: "year", name: "Year", dataType: "number", sortOrder: 5 },
+        { apiKey: "price", name: "Price", dataType: "decimal", sortOrder: 6 },
+        {
+          apiKey: "status",
+          name: "Status",
+          dataType: "picklist",
+          options: ["In Stock", "Reserved", "Sold", "In Service"],
+          sortOrder: 7,
+        },
+      ],
+    },
+    {
+      apiName: "sales_order",
+      name: "Sales Order",
+      pluralName: "Sales Orders",
+      description: "An order for the sale of a vehicle to a customer.",
+      fields: [
+        { apiKey: "order_number", name: "Order Number", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "customer", name: "Customer", dataType: "lookup", lookupTargetApiName: "customer", sortOrder: 1 },
+        { apiKey: "vehicle", name: "Vehicle", dataType: "lookup", lookupTargetApiName: "vehicle", sortOrder: 2 },
+        {
+          apiKey: "salesperson",
+          name: "Salesperson",
+          dataType: "lookup",
+          lookupTargetApiName: "salesperson",
+          sortOrder: 3,
+        },
+        { apiKey: "sale_price", name: "Sale Price", dataType: "decimal", sortOrder: 4 },
+        { apiKey: "sale_date", name: "Sale Date", dataType: "date", sortOrder: 5 },
+        {
+          apiKey: "status",
+          name: "Status",
+          dataType: "picklist",
+          options: ["Pending", "Completed", "Cancelled"],
+          sortOrder: 6,
+        },
+      ],
+    },
+    {
+      apiName: "service_appointment",
+      name: "Service Appointment",
+      pluralName: "Service Appointments",
+      description: "A scheduled service visit for a vehicle.",
+      fields: [
+        { apiKey: "title", name: "Title", dataType: "text", isRequired: true, isSearchable: true, sortOrder: 0 },
+        { apiKey: "vehicle", name: "Vehicle", dataType: "lookup", lookupTargetApiName: "vehicle", sortOrder: 1 },
+        { apiKey: "customer", name: "Customer", dataType: "lookup", lookupTargetApiName: "customer", sortOrder: 2 },
+        { apiKey: "scheduled_at", name: "Scheduled At", dataType: "datetime", sortOrder: 3 },
+        {
+          apiKey: "status",
+          name: "Status",
+          dataType: "picklist",
+          options: ["Scheduled", "In Progress", "Completed", "Cancelled"],
+          sortOrder: 4,
+        },
+        { apiKey: "notes", name: "Notes", dataType: "long_text", sortOrder: 5 },
+      ],
+    },
+  ],
+};

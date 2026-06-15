@@ -94,6 +94,11 @@ describe('AppShell', () => {
 
     expect(fixture.nativeElement.querySelector('#nav-objects')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('#nav-users')).toBeTruthy();
+
+    const templatesLink = fixture.nativeElement.querySelector('#nav-templates');
+    expect(templatesLink).toBeTruthy();
+    expect(templatesLink.getAttribute('href')).toBe('/admin/templates');
+    expect(templatesLink.textContent).toContain('Templates');
   });
 
   it('hides the CONFIGURATION section for members', async () => {
@@ -104,6 +109,7 @@ describe('AppShell', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('#nav-objects')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('#nav-templates')).toBeFalsy();
     expect(fixture.nativeElement.querySelector('#nav-users')).toBeFalsy();
   });
 

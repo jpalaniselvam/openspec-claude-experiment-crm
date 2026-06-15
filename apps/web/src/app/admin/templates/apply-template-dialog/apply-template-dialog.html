@@ -1,0 +1,89 @@
+<h2 mat-dialog-title>Apply "{{ template.name }}"</h2>
+
+<mat-dialog-content>
+  @switch (step()) {
+    @case ('confirm') {
+      <p class="dialog-description">{{ template.description }}</p>
+      <p class="summary-label">This will create the following objects:</p>
+      <ul class="template-objects">
+        @for (object of template.objects; track object.apiName) {
+          <li>{{ object.pluralName }} · {{ object.fieldCount }} fields</li>
+        }
+      </ul>
+    }
+
+    @case ('applying') {
+      <p class="summary-label">This will create the following objects:</p>
+      <ul class="template-objects">
+        @for (object of template.objects; track object.apiName) {
+          <li>{{ object.pluralName }} · {{ object.fieldCount }} fields</li>
+        }
+      </ul>
+      <div class="applying-wrapper">
+        <mat-spinner diameter="32" />
+        <span>Applying template…</span>
+      </div>
+    }
+
+    @case ('result') {
+      @if (errorMessage()) {
+        <p class="error-msg">{{ errorMessage() }}</p>
+      } @else if (result()) {
+        @if (result()!.created.length > 0) {
+          <h3 class="result-section-title">Created</h3>
+          <ul class="result-list">
+            @for (created of result()!.created; track created.apiName) {
+              <li>
+                <span class="result-item-name">{{ created.apiName }}</span>
+                <span class="result-item-detail">{{ created.fieldsCreated.length }} fields created</span>
+                @for (skipped of created.fieldsSkipped; track skipped.apiKey) {
+                  <div class="field-skipped-note">
+                    <mat-icon>info</mat-icon>
+                    <span>{{ skipped.apiKey }}: {{ friendlyReason(skipped.reason) }}</span>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        @if (result()!.skipped.length > 0) {
+          <h3 class="result-section-title">Skipped</h3>
+          <ul class="result-list">
+            @for (skipped of result()!.skipped; track skipped.apiName) {
+              <li>
+                <span class="result-item-name">{{ skipped.apiName }}</span>
+                <span class="result-item-detail">{{ friendlyReason(skipped.reason) }}</span>
+              </li>
+            }
+          </ul>
+        }
+      }
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @switch (step()) {
+    @case ('confirm') {
+      <button mat-button (click)="cancel()" id="btn-cancel-apply-template">Cancel</button>
+      <button mat-flat-button (click)="apply()" id="btn-confirm-apply-template">Apply</button>
+    }
+
+    @case ('applying') {
+      <button mat-button disabled id="btn-cancel-apply-template">Cancel</button>
+      <button mat-flat-button disabled id="btn-confirm-apply-template">Apply</button>
+    }
+
+    @case ('result') {
+      @if (errorMessage()) {
+        <button mat-button (click)="close()" id="btn-close-apply-template">Close</button>
+      } @else {
+        @if (result() && result()!.created.length > 0) {
+          <button mat-button (click)="viewObjects()" id="btn-view-objects">View Objects</button>
+        }
+        <button mat-flat-button (click)="close()" id="btn-done-apply-template">Done</button>
+      }
+    }
+  }
+</mat-dialog-actions>

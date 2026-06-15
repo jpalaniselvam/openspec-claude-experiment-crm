@@ -33,6 +33,10 @@ export const routes: Routes = [
             path: 'objects/:id',
             loadComponent: () => import('./admin/objects/object-detail-page/object-detail-page').then((m) => m.ObjectDetailPage),
           },
+          {
+            path: 'templates',
+            loadComponent: () => import('./admin/templates/templates-page/templates-page').then((m) => m.TemplatesPage),
+          },
           { path: '', pathMatch: 'full', redirectTo: 'objects' },
         ],
       },

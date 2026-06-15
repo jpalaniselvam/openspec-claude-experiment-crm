@@ -1,0 +1,48 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1 class="page-title">Templates</h1>
+    <p class="page-subtitle">Apply a starter data model to your organization</p>
+  </div>
+</div>
+
+<div class="page-content">
+  @if (errorMessage()) {
+  <p class="error-msg">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+  <div class="loading-wrapper">
+    <mat-spinner diameter="40" />
+  </div>
+  } @else if (templates().length === 0) {
+  <div class="empty-state">
+    <mat-icon class="empty-icon">dashboard_customize</mat-icon>
+    <h3>No templates available</h3>
+    <p>There are no starter templates to display right now.</p>
+  </div>
+  } @else {
+  <mat-accordion>
+    @for (template of templates(); track template.key) {
+    <mat-expansion-panel [id]="'panel-template-' + template.key">
+      <mat-expansion-panel-header>
+        <mat-panel-title>{{ template.name }}</mat-panel-title>
+        <mat-panel-description>{{ template.description }}</mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <ul class="template-objects">
+        @for (object of template.objects; track object.apiName) {
+        <li>{{ object.pluralName }} · {{ object.fieldCount }} fields</li>
+        }
+      </ul>
+
+      <div class="panel-actions">
+        <button mat-flat-button (click)="openApplyDialog(template)" [id]="'btn-apply-template-' + template.key">
+          <mat-icon>add_circle</mat-icon>
+          Apply Template
+        </button>
+      </div>
+    </mat-expansion-panel>
+    }
+  </mat-accordion>
+  }
+</div>

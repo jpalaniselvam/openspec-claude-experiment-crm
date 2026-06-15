@@ -1,12 +1,7 @@
-# Admin Shell Navigation
-
-## Purpose
-TBD: This capability provides the main administrative shell and navigation layout for the tenant admin area.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Admin shell renders a collapsible sidebar navigation
-The system SHALL provide a shared shell component that wraps all authenticated routes and renders a `MatSidenav`-based layout, guarded only by authentication (not admin role). The sidebar SHALL display navigation links grouped into sections: Workspace (Dashboard), Data (one item per non-archived object definition, fetched via `GET /api/objects`), and Configuration (Objects, Templates, Users), where the Configuration section is rendered only for users whose `role` is `admin`. The sidebar SHALL be collapsible to an icon-only mode via a toggle button. The shell SHALL use Angular's `<router-outlet>` for rendering child pages in the main content area.
+The system SHALL provide a shared shell component that wraps all authenticated routes and renders a `MatSidenav`-based layout, guarded only by authentication (not admin role). The sidebar SHALL display navigation links grouped into sections: Workspace (Dashboard), Data (one item per non-archived object definition, fetched via `GET /api/objects`), and Configuration (Objects, Users), where the Configuration section is rendered only for users whose `role` is `admin`. The sidebar SHALL be collapsible to an icon-only mode via a toggle button. The shell SHALL use Angular's `<router-outlet>` for rendering child pages in the main content area.
 
 #### Scenario: Any authenticated user loads the shell
 - **WHEN** an authenticated user (any role) navigates to any route wrapped by the shell
@@ -18,7 +13,7 @@ The system SHALL provide a shared shell component that wraps all authenticated r
 
 #### Scenario: Configuration section is visible to admins
 - **WHEN** an authenticated user with `role = admin` views the sidebar
-- **THEN** the Configuration section is shown with links to Objects, Templates, and Users
+- **THEN** the Configuration section is shown with links to Objects and Users
 
 #### Scenario: Configuration section is hidden from members
 - **WHEN** an authenticated user with `role = member` views the sidebar
@@ -33,5 +28,5 @@ The system SHALL provide a shared shell component that wraps all authenticated r
 - **THEN** the sidebar expands to show full labels alongside icons
 
 #### Scenario: Active route is highlighted
-- **WHEN** the user is on a given route represented by a sidebar nav item (e.g., `/admin/objects`, `/admin/templates`, or `/objects/doctor`)
+- **WHEN** the user is on a given route represented by a sidebar nav item (e.g., `/admin/objects` or `/objects/doctor`)
 - **THEN** the corresponding sidebar nav item is visually highlighted as active
